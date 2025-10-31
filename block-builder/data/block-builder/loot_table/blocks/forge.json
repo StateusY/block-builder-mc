@@ -1,0 +1,40 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:item_frame",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_name": {"translate":"item.block-builder.forge","fallback":"Forging Station"},
+                "minecraft:item_model": "block-builder:forge_item",
+                "minecraft:custom_data": {"block-builder":{"forge":true},"smithed":{"ignore":{"functionality":true,"crafting":true}}},
+                "minecraft:lore": [
+                  [
+                    {
+                      "text": "0 ",
+                      "color": "white",
+                      "font": "block-builder:icon",
+                      "italic": false
+                    },
+                    {
+                      "translate": "block-builder.tooltip",
+                      "color": "white",
+                      "font": "block-builder:tooltip",
+                      "italic": false
+                    }
+                  ]
+                ],
+                "minecraft:entity_data": {"id":"minecraft:item_frame","Tags":["block-builder.forge_setup"],"Silent":true,"Invisible":true}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

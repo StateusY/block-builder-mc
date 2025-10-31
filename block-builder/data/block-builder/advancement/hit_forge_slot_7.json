@@ -1,0 +1,16 @@
+{
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:player_hurt_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:interaction",
+          "nbt": "{Tags:[\"block-builder.forge_interaction_slot_7\"]}"
+        }
+      }
+    }
+  },
+  "rewards": {
+    "function": "block-builder:blocks/forge/hit/slots/hit_slot_7"
+  }
+}

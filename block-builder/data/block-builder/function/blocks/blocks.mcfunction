@@ -1,0 +1,1 @@
+execute if entity @s[tag=block-builder.forge] run function block-builder:blocks/forge/tick

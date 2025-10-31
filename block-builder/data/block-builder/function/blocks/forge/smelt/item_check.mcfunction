@@ -1,0 +1,2 @@
+execute if data entity @s {item:{components:{"minecraft:custom_data":{smithed:{ignore:{crafting:true}}}}}} unless data entity @s {item:{components:{"minecraft:custom_data":{block-builder:{ingredient:{}}}}}} run return run data modify storage block-builder:temp forge.Items append value {id:"ignore"}
+data modify storage block-builder:temp forge.Items append from entity @s item

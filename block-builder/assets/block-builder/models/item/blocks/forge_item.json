@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "block-builder:item/blocks/forge_item"
+  }
+}

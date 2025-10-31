@@ -1,0 +1,19 @@
+{
+	"providers": [
+		{
+			"type": "bitmap",
+			"file": "block-builder:gui/sprites/icon.png",
+			"ascent": 8,
+			"height": 9,
+			"chars": [
+				"0"
+			]
+		},
+		{
+			"type": "space",
+			"advances": {
+				" ": 2
+			}
+		}
+	]
+}
