@@ -14,6 +14,8 @@ blocks = [
         "id": "sandstone_table",
         "interact": False,
         "can_float": True,
+
+        "hit_count": 3,
         
         "place_block_sound": "minecraft:block.stone.place",
         "hit_block_sound": "minecraft:block.stone.hit",
@@ -85,9 +87,9 @@ def main():
     # global functions
     function = create_load_master_entry(blocks)
     save_generic_mcfunction("load", OUTPUT_DIR / "data" / NAMESPACE / "function", function)
-    create_tick_master_entry(blocks)
+    function = create_tick_master_entry(blocks)
     save_generic_mcfunction("tick", OUTPUT_DIR / "data" / NAMESPACE / "function", function)
-    create_tick_2_master_entry()
+    function = create_tick_2_master_entry()
     save_generic_mcfunction("tick_2", OUTPUT_DIR / "data" / NAMESPACE / "function", function)
     function = create_blocks_master_entry(blocks)
     save_generic_mcfunction("blocks", BLOCK_FUNCTION_DIR, function)
@@ -277,7 +279,6 @@ def create_mcmeta():
             }
         }
 
-
 def create_lang_en(blocks):
     lang = {}
 
@@ -404,7 +405,7 @@ def create_item_frame_functions(blocks):
     check = []
     for block in blocks:
         check.append(f"execute if entity @s[tag={NAMESPACE}.{block['id']}_setup] run return run function {NAMESPACE}:blocks/{block['id']}/place")
-    main = ["execute at @s as @e[type=minecraft:item_frame,distance=..30] at @s run function {NAMESPACE}:item_frame/check","advancement revoke @s only {NAMESPACE}:item_frame"]
+    main = [f"execute at @s as @e[type=minecraft:item_frame,distance=..30] at @s run function {NAMESPACE}:item_frame/check",f"advancement revoke @s only {NAMESPACE}:blocks/item_frame"]
 
     save_generic_mcfunction("check", OUTPUT_DIR / "data" / NAMESPACE / "function" / "item_frame", check)
     save_generic_mcfunction("main", OUTPUT_DIR / "data" / NAMESPACE / "function" / "item_frame", main)
@@ -412,7 +413,7 @@ def create_item_frame_functions(blocks):
 def create_load_master_entry(blocks):
     function = []
     for block in blocks:
-        function.extend([f"# {block['id']}", f"scoreboard objectives add {NAMESPACE}.dummy dummy", f"scoreboard objectives add {NAMESPACE}.hit_count dummy", f"scoreboard objectives add {NAMESPACE}.hit_timer dummy", f"scoreboard objectives add {NAMESPACE}.rotation dummy", ""])
+        function.extend([f"# {block['id']}", f"scoreboard objectives add {NAMESPACE}.{block['id']}.dummy dummy", f"scoreboard objectives add {NAMESPACE}.{block['id']}.hit_count dummy", f"scoreboard objectives add {NAMESPACE}.{block['id']}.hit_timer dummy", f"scoreboard objectives add {NAMESPACE}.{block['id']}.rotation dummy", ""])
     return function
 
 def create_tick_master_entry(blocks):
@@ -432,27 +433,32 @@ def create_blocks_master_entry(blocks):
 
 def create_tick_entry(block):
     function = []
-    function.append(f"execute if score @s {NAMESPACE}.hit_count matches 1.. run function {NAMESPACE}:blocks/{block['id']}/break/check")
+    function.append(f"execute if score @s {NAMESPACE}.{block['id']}.hit_count matches 1.. run function {NAMESPACE}:blocks/{block['id']}/break/check")
     if block['can_float'] == False: function.append("","# The block cannot float, so check if air is below it and break if true", f"execute unless block ~ ~ ~ minecraft:barrier run function {NAMESPACE}:blocks/{block['id']}/break/break", f"execute if block ~ ~-1 ~ #{NAMESPACE}:blocks run function {NAMESPACE}:blocks/{block['id']}/break/break")
     return function
 
 def create_place_entry(block):
-    return ["# remove setup item frame", "kill @s", "", "# play place block sound", f"playsound {block['place_block_sound']} block @a ~ ~ ~ 1 2", "", "# spawn the block's item display", f"execute unless block ~ ~ ~ #minecraft:air run return run loot spawn ~ ~ ~ loot {NAMESPACE}:blocks/{block['id']}", f"execute align xyz positioned ~0.5 ~0.5 ~0.5 as @n[tag=smithed.block,distance=..0.1] at @s run return run loot spawn ~ ~ ~ loot {NAMESPACE}:blocks/{block['id']}", "", "setblock ~ ~ ~ minecraft:barrier", "", "# rotate to player orientation", f"data modify storage {NAMESPACE}:temp rotation set value 0", f"execute store result score $player_rotation {NAMESPACE}.dummy run data get entity @p[advancements={{{NAMESPACE}:item_frame=true}}] Rotation[0]", f"execute if score $player_rotation {NAMESPACE}.dummy matches 135..180 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 90", f"execute if score $player_rotation {NAMESPACE}.dummy matches -180..-135 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 90", f"execute if score $player_rotation {NAMESPACE}.dummy matches -135..-45 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 180", f"execute if score $player_rotation {NAMESPACE}.dummy matches -45..45 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value -90", f"execute if score $player_rotation {NAMESPACE}.dummy matches 45..135 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 0", "", "# run data to macro", f"function {NAMESPACE}:blocks/{block['id']}/macro with storage {NAMESPACE}:temp", f"scoreboard players set @n[type=minecraft:item_display,tag={NAMESPACE}.{block['id']}] {NAMESPACE}.hit_count 0", f"scoreboard players set @n[type=minecraft:item_display,tag={NAMESPACE}.{block['id']}] {NAMESPACE}.hit_timer 0", f"execute as @n[type=minecraft:item_display,tag={NAMESPACE}.{block['id']}] run data modify storage {NAMESPACE}:temp {block['id']}.occupied_slots set value []"]
+    return ["# remove setup item frame", "kill @s", "", "# play place block sound", f"playsound {block['place_block_sound']} block @a ~ ~ ~ 1 2", "", "# spawn the block's item display", f"execute unless block ~ ~ ~ #minecraft:air run return run loot spawn ~ ~ ~ loot {NAMESPACE}:blocks/{block['id']}", f"execute align xyz positioned ~0.5 ~0.5 ~0.5 as @n[tag=smithed.block,distance=..0.1] at @s run return run loot spawn ~ ~ ~ loot {NAMESPACE}:blocks/{block['id']}", "", "setblock ~ ~ ~ minecraft:barrier", "", "# rotate to player orientation", f"data modify storage {NAMESPACE}:temp rotation set value 0", f"execute store result score $player_rotation {NAMESPACE}.dummy run data get entity @p[advancements={{{NAMESPACE}:blocks/item_frame=true}}] Rotation[0]", f"execute if score $player_rotation {NAMESPACE}.dummy matches 135..180 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 90", f"execute if score $player_rotation {NAMESPACE}.dummy matches -180..-135 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 90", f"execute if score $player_rotation {NAMESPACE}.dummy matches -135..-45 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 180", f"execute if score $player_rotation {NAMESPACE}.dummy matches -45..45 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value -90", f"execute if score $player_rotation {NAMESPACE}.dummy matches 45..135 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 0", "", "# run data to macro", f"function {NAMESPACE}:blocks/{block['id']}/macro with storage {NAMESPACE}:temp", f"scoreboard players set @n[type=minecraft:item_display,tag={NAMESPACE}.{block['id']}] {NAMESPACE}.{block['id']}.hit_count 0", f"scoreboard players set @n[type=minecraft:item_display,tag={NAMESPACE}.{block['id']}] {NAMESPACE}.{block['id']}.hit_timer 0"]
 
 def create_macro_entry(block):
-    return f"$execute align xyz run summon item_display ~0.5 ~0.5 ~0.5 {{Tags:[\"{NAMESPACE}.{block['id']}\",\"{NAMESPACE}.block\",\"smithed.block\",\"smithed.entity\",\"smithed.strict\"],transformation:{{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],scale:[1f,1f,1f],translation:[0.0f,0.0f,0.0f]}},item:{{id:\"minecraft:barrier\",count:1,components:{{\"minecraft:item_model\":\"{NAMESPACE}:blocks/{block['id']}/{block['id']}_block\"}},Rotation:[$(rotation),0.0],Passengers:[{{id:\"minecraft:interaction\",Tags:[\"{NAMESPACE}.{block['id']}_interaction\",\"{NAMESPACE}.{block['id']}_interaction_base\",\"smithed.block\",\"smithed.entity\",\"smithed.strict\"],height:-0.501,width:1.01,response:true}}, {{id:\"minecraft:interaction\",Tags:[\"{NAMESPACE}.{block['id']}_interaction\",\"{NAMESPACE}.{block['id']}_interaction_base\",\"smithed.block\",\"smithed.entity\",\"smithed.strict\"],height:0.501,width:1.01,response:true}}]}}}}"
+    if block['interact'] == True:
+        macro = f"$execute align xyz run summon item_display ~0.5 ~0.5 ~0.5 {{Tags:[\"{NAMESPACE}.{block['id']}\",\"{NAMESPACE}.block\",\"smithed.block\",\"smithed.entity\",\"smithed.strict\"],transformation:{{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],scale:[1f,1f,1f],translation:[0.0f,0.0f,0.0f]}},item:{{id:\"minecraft:barrier\",count:1,components:{{\"minecraft:item_model\":\"{NAMESPACE}:blocks/{block['id']}/{block['id']}_block\"}}}},Rotation:[$(rotation),0.0],Passengers:[{{id:\"minecraft:interaction\",Tags:[\"{NAMESPACE}.{block['id']}_interaction\",\"{NAMESPACE}.{block['id']}_interaction_base\",\"smithed.block\",\"smithed.entity\",\"smithed.strict\"],height:-0.501,width:1.01,response:true}}, {{id:\"minecraft:interaction\",Tags:[\"{NAMESPACE}.{block['id']}_interaction\",\"{NAMESPACE}.{block['id']}_interaction_base\",\"smithed.block\",\"smithed.entity\",\"smithed.strict\"],height:0.501,width:1.01,response:true}}]}}"
+    else:
+        macro = f"$execute align xyz run summon item_display ~0.5 ~0.5 ~0.5 {{Tags:[\"{NAMESPACE}.{block['id']}\",\"{NAMESPACE}.block\",\"smithed.block\",\"smithed.entity\",\"smithed.strict\"],transformation:{{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],scale:[1f,1f,1f],translation:[0.0f,0.0f,0.0f]}},item:{{id:\"minecraft:barrier\",count:1,components:{{\"minecraft:item_model\":\"{NAMESPACE}:blocks/{block['id']}/{block['id']}_block\"}}}},Rotation:[$(rotation),0.0],Passengers:[{{id:\"minecraft:interaction\",Tags:[\"{NAMESPACE}.{block['id']}_interaction\",\"{NAMESPACE}.{block['id']}_interaction_base\",\"smithed.block\",\"smithed.entity\",\"smithed.strict\"],height:-0.501,width:1.01,response:false}}, {{id:\"minecraft:interaction\",Tags:[\"{NAMESPACE}.{block['id']}_interaction\",\"{NAMESPACE}.{block['id']}_interaction_base\",\"smithed.block\",\"smithed.entity\",\"smithed.strict\"],height:0.501,width:1.01,response:false}}]}}"
+
+    return macro
 
 def create_hit_hit_entry(block):
-    return [f"advancement revoke @s only {NAMESPACE}:hit_{block['id']}", f"function {NAMESPACE}:blocks/{block['id']}/hit/main"]
+    return [f"advancement revoke @s only {NAMESPACE}:blocks/{block['id']}/hit_{block['id']}", f"function {NAMESPACE}:blocks/{block['id']}/hit/main"]
 
 def create_hit_main_entry(block):
-    return [f"scoreboard players set $hit_{block['id']}_check {NAMESPACE}.dummy 0", "", f"tag @s add {NAMESPACE}.hit_{block['id']}", f"execute as @e[type=minecraft:interaction,tag={NAMESPACE}.{block['id']}_interaction_slot_2,distance=..20,sort=nearest] run function {NAMESPACE}:blocks/{block['id']}/hit/check", f"tag @s remove {NAMESPACE}.hit_{block['id']}"]
+    return [f"scoreboard players set $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy 0", "", f"tag @s add {NAMESPACE}.hit_{block['id']}", f"execute as @e[type=minecraft:interaction,tag={NAMESPACE}.{block['id']}_interaction_base,distance=..20,sort=nearest] run function {NAMESPACE}:blocks/{block['id']}/hit/check", f"tag @s remove {NAMESPACE}.hit_{block['id']}"]
 
 def create_hit_check_entry(block):
-    return [f"execute if score $hit_{block['id']}_check {NAMESPACE}.dummy matches 1 run return fail", "", f"execute on attacker if entity @s[tag={NAMESPACE}.hit_{block['id']}] run scoreboard players set $hit_{block['id']}_check {NAMESPACE}.dummy 1", f"execute if score $hit_{block['id']}_check {NAMESPACE}.dummy matches 1 run data remove entity @s attack", f"execute if score $hit_{block['id']}_check {NAMESPACE}.dummy matches 1 on vehicle run scoreboard players add @s {NAMESPACE}.hit_count 1", f"execute if score $hit_{block['id']}_check {NAMESPACE}.dummy matches 1 on vehicle at @s run playsound {block['hit_block_sound']} block @a ~ ~ ~ 1 2", f"execute if score $hit_{block['id']}_check {NAMESPACE}.dummy matches 1 on vehicle at @s run particle {block['hit_block_particle']} ~ ~-0.25 ~ 0.3 0.1 0.3 0.1 5"]
+    return [f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 run return fail", "", f"execute on attacker if entity @s[tag={NAMESPACE}.hit_{block['id']}] run scoreboard players set $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy 1", f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 run data remove entity @s attack", f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 on vehicle run scoreboard players add @s {NAMESPACE}.{block['id']}.hit_count 1", f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 on vehicle at @s run playsound {block['hit_block_sound']} block @a ~ ~ ~ 1 2", f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 on vehicle at @s run particle {block['hit_block_particle']} ~ ~-0.25 ~ 0.3 0.1 0.3 0.1 5"]
 
 def create_break_check_entry(block):
-    return [f"execute if score @s {NAMESPACE}.hit_timer matches 60 run scoreboard players set @s {NAMESPACE}.hit_count 0", f"execute if score @s {NAMESPACE}.hit_timer matches 60 run return run scoreboard players set @s {NAMESPACE}.hit_timer 0", f"execute if score @s {NAMESPACE}.hit_count matches 1..2 run return run scoreboard players add @s {NAMESPACE}.hit_timer 1", "", f"function {NAMESPACE}:blocks/{block['id']}/break/break"]
+    return [f"execute if score @s {NAMESPACE}.{block['id']}.hit_timer matches 60 run scoreboard players set @s {NAMESPACE}.{block['id']}.hit_count 0", f"execute if score @s {NAMESPACE}.{block['id']}.hit_timer matches 60 run return run scoreboard players set @s {NAMESPACE}.{block['id']}.hit_timer 0", f"execute if score @s {NAMESPACE}.{block['id']}.hit_count matches 1..{block['hit_count'] - 1} run return run scoreboard players add @s {NAMESPACE}.{block['id']}.hit_timer 1", "", f"function {NAMESPACE}:blocks/{block['id']}/break/break"]
 
 def create_break_break_entry(block):
     return ["execute on passengers run kill @s", f"execute as @e[type=interaction,distance=..0.65,tag={NAMESPACE}.{block['id']}_interaction] run kill @s", "kill @s", "", "setblock ~ ~ ~ minecraft:air replace", f"playsound {block['break_block_sound']} block @a ~ ~ ~ 1 2", f"particle {block['break_block_particle']} ~ ~-0.25 ~ 0.3 0.1 0.3 0.1 20", "", f"loot spawn ~ ~ ~ loot {NAMESPACE}:blocks/{block['id']}"]

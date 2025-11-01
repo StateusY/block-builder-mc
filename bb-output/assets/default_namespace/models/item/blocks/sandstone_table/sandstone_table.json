@@ -2,12 +2,12 @@
 	"format_version": "1.21.6",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"1": "default_namespace:block/sandstone_table/sandstone_table_counter_top",
-		"2": "default_namespace:block/sandstone_table/sandstone_table_counter_sides",
-		"4": "default_namespace:block/sandstone_table/sandstone_table_chain_lattice",
-		"5": "default_namespace:block/sandstone_table/sandstone_table_legs",
-		"0": "default_namespace:block/sandstone_table/sandstone_table_counter_bottom",
-		"particle": "default_namespace:block/sandstone_table/sandstone_table_counter_top"
+		"0": "sandstone_bottom",
+		"1": "sandstone_top",
+		"2": "sandstone",
+		"4": "chain",
+		"5": "block/texture",
+		"particle": "sandstone_bottom"
 	},
 	"elements": [
 		{
