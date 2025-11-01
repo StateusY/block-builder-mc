@@ -15,7 +15,7 @@
     "id": "minecraft:item_frame",
     "components": {
     "minecraft:item_name": {"translate":"item.block-builder.forge","fallback":"Forging Station"},
-    "minecraft:item_model": "block-builder:forge_item",
+    "minecraft:item_model": "block-builder:blocks/forge/forge_item",
     "minecraft:custom_data": {"block-builder":{"forge":true},"smithed":{"ignore":{"functionality":true,"crafting":true}}},
     "minecraft:lore": [
         [

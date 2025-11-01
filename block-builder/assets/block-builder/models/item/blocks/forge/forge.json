@@ -3,9 +3,9 @@
 	"credit": "Made with Blockbench",
 	"parent": "minecraft:block/cube",
 	"textures": {
-		"down": "block-builder:block/forge_bottom",
-		"up": "block-builder:block/forge_top",
-		"west": "block-builder:block/forge_side"
+		"down": "block-builder:block/forge/forge_bottom",
+		"up": "block-builder:block/forge/forge_top",
+		"west": "block-builder:block/forge/forge_side"
 	},
 	"elements": [
 		{

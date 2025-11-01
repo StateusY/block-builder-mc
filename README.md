@@ -15,3 +15,13 @@ Known Limitations
 - If someone /kill @e, there will be a bunch of barriers left over. Solution is to use shulkers instead.
 - The blocks don't diminish tool durability or base the 'health' on the tool type. Solution is to implement checks.
 - Currently you can't place blocks on the custom block because they just trigger the interaction. Solution is unknown.
+
+
+Script Checklist:
+ - [ ] get namespace
+ - [ ] get blockname
+ - [ ] recipe
+ - [ ] loot table
+ - [ ] item texture 
+ - [ ] block texture (namespace/assets/namespace/textures/blocks/blockname)
+ - [ ] item texture

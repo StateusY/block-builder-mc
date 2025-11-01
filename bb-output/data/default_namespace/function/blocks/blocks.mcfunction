@@ -1,0 +1,1 @@
+execute if entity @s[tag=default_namespace.sandstone_table] run function default_namespace:blocks/sandstone_table/tick

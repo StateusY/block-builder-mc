@@ -1,8 +1,14 @@
-$execute align xyz run summon item_display ~0.5 ~0.5 ~0.5 {Tags:["block-builder.forge","block-builder.block","smithed.block","smithed.entity","smithed.strict"],transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],scale:[1f,1f,1f],translation:[0.0f,0.0f,0.0f]},item:{id:"minecraft:barrier",count:1,components:{"minecraft:item_model":"block-builder:forge"}},Rotation:[$(rotation),0.0],Passengers:\
+$execute align xyz run summon item_display ~0.5 ~0.5 ~0.5 {Tags:["block-builder.forge","block-builder.block","smithed.block","smithed.entity","smithed.strict"],transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],scale:[1f,1f,1f],translation:[0.0f,0.0f,0.0f]},item:{id:"minecraft:barrier",count:1,components:{"minecraft:item_model":"block-builder:blocks/forge/forge"}},Rotation:[$(rotation),0.0],Passengers:\
     [\
         {id:"minecraft:interaction",Tags:["block-builder.forge_interaction","block-builder.forge_interaction_base","smithed.block","smithed.entity","smithed.strict"],height:-0.501,width:1.01,response:true},\
         {id:"minecraft:interaction",Tags:["block-builder.forge_interaction","block-builder.forge_interaction_base","smithed.block","smithed.entity","smithed.strict"],height:0.501,width:1.01,response:true}\
     ]}
+
+
+
+##ignore
+
+
 # >> If Rotation = 0
 #Slot1
 
