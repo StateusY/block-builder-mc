@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "example_pack:item/blocks/sandstone_table/sandstone_table_item"
+  }
+}

@@ -1,1 +1,0 @@
-$function $(smelt_callback)

@@ -48,8 +48,8 @@ To have your very own custom blocks, you need to clone the repo - the important 
    **WARNING! GENERATING DELETES THE OLD DATAPACK, EITHER COPY THE FILES ELSEWARE OR CHANGE THE NAME OF THE ROOT DATAPACK FOLDER TO SOMETHING BESIDES "bb-output"**
 
 6. The final step is to insert your textures and block models into the datapack
-    - Upload the block's textures to NAMESPACE/assets/NAMESPACE/textures/blocks/BLOCKNAME")
-    - Upload the block's item texture to NAMESPACE/assets/NAMESPACE/textures/items/BLOCKNAME")
-    - Upload the block's model to NAMESPACE/assets/NAMESPACE/models/item/blocks/BLOCKNAME") - Note: only the block model needs uploading, the item model is pregenerated. Also, don't forget to link the textures in the model to the directories of the textures, use the sandstone_table as example.
+    - Upload the block's textures to NAMESPACE/assets/NAMESPACE/textures/blocks/BLOCKNAME"
+    - If the block has a seperate item texture, upload the block's item texture to NAMESPACE/assets/NAMESPACE/textures/items/BLOCKNAME"
+    - Upload the block's model to NAMESPACE/assets/NAMESPACE/models/item/blocks/BLOCKNAME" - Note: only the block model needs uploading, the item model is pregenerated. Also, don't forget to link the textures in the model to the directories of the textures, use the sandstone_table as example. Also also, I reccomend to set the display settings to the 'block' preset in BlockBench if you don't have a seperate item texture.
 
 You are done! You can either use this datapack as is or copy the files into a pre-existing datapack.

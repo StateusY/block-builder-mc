@@ -26,9 +26,9 @@ from pathlib import Path
 #     - Recipe Pattern: arrange the keys in a pattern to mimic a crafting recipe - spaces are empty slots.
 # 5. Now GENERATE! If you input everything above correctly it should work - use the example (sandstone_table) to work off of.
 # 6. The final step is to insert your textures and block models into the datapack
-#     - Upload the block's textures to NAMESPACE/assets/NAMESPACE/textures/blocks/BLOCKNAME")
-#     - Upload the block's item texture to NAMESPACE/assets/NAMESPACE/textures/items/BLOCKNAME")
-#     - Upload the block's model to NAMESPACE/assets/NAMESPACE/models/item/blocks/BLOCKNAME") - Note: only the block model needs uploading, the item model is pregenerated. Also, don't forget to link the textures in the model to the directories of the textures, use the sandstone_table as example.
+#     - Upload the block's textures to NAMESPACE/assets/NAMESPACE/textures/blocks/BLOCKNAME"
+#     - If the block has a seperate item textue, upload the block's item texture to NAMESPACE/assets/NAMESPACE/textures/items/BLOCKNAME"
+#     - Upload the block's model to NAMESPACE/assets/NAMESPACE/models/item/blocks/BLOCKNAME" - Note: only the block model needs uploading, the item model is pregenerated. Also, don't forget to link the textures in the model to the directories of the textures, use the sandstone_table as example. Also also, I reccomend to set the display settings to the 'block' preset in BlockBench if you don't have a seperate item texture.
 
 
 NAMESPACE = "default_namespace" # change me
@@ -37,6 +37,7 @@ blocks = [
     {
         "name": "Sandstone Table",
         "id": "sandstone_table",
+        "seperate_item_model": True,
         "interact": False,
         "interaction_function": None,
         "can_float": True,
@@ -44,7 +45,7 @@ blocks = [
         "hit_count": 3,
         
         "place_block_sound": "minecraft:block.stone.place block @a ~ ~ ~ 1 2",
-        "hit_block_sound": "minecraft:block.stone.hit",
+        "hit_block_sound": "minecraft:block.stone.hit block @a ~ ~ ~ 1 2",
         "hit_block_particle": "minecraft:item{item:{id:\"minecraft:sandstone\"}} ~ ~-0.25 ~ 0.3 0.1 0.3 0.1 5",
         "break_block_sound": "minecraft:block.stone.break block @a ~ ~ ~ 1 2",
         "break_block_particle": "minecraft:item{item:{id:\"minecraft:sandstone\"}} ~ ~-0.25 ~ 0.3 0.1 0.3 0.1 20",
@@ -59,6 +60,32 @@ blocks = [
             "XXX",
             "$X%",
             "$ $"
+        ]
+    },
+    {
+        "name": "Block of Hard Cheese",
+        "id": "hard_cheese",
+        "seperate_item_model": False,
+        "interact": False,
+        "interaction_function": None,
+        "can_float": True,
+
+        "hit_count": 10,
+        
+        "place_block_sound": "minecraft:block.candle.place block @a ~ ~ ~ 1 2",
+        "hit_block_sound": "block.candle.hit block @a ~ ~ ~ 1 2",
+        "hit_block_particle": "minecraft:item{item:{id:\"minecraft:yellow_concrete\"}} ~ ~-0.25 ~ 0.3 0.1 0.3 0.1 5",
+        "break_block_sound": "block.candle.hit block @a ~ ~ ~ 1 2",
+        "break_block_particle": "minecraft:item{item:{id:\"minecraft:yellow_concrete\"}} ~ ~-0.25 ~ 0.3 0.1 0.3 0.1 20",
+
+        "has_recipe": True,
+        "recipe_output_quantity": 9,
+        "recipe_key": {"#": "minecraft:milk_bucket"
+                       },
+        "recipe_pattern": [
+            "###",
+            "###",
+            "###"
         ]
     }
 ]
@@ -128,7 +155,7 @@ def main():
 
         # recipe
         if block['has_recipe']:
-            recipe = create_loot_entry(block)
+            recipe = create_recipe_entry(block)
             save_generic_json(block['id'], OUTPUT_DIR / "data" / NAMESPACE / "recipe" / "blocks", recipe)
 
         # advancements
@@ -148,8 +175,8 @@ def main():
         save_generic_json(f"{block['id']}_item", OUTPUT_DIR / "assets" / NAMESPACE / "models" / "item" / "blocks" / block['id'], item)
         item = create_block_model_entry(block)
         save_generic_json(f"{block['id']}_block", OUTPUT_DIR / "assets" / NAMESPACE / "models" / "item" / "blocks" / block['id'], item)
-        (OUTPUT_DIR / "assets" / NAMESPACE / "textures" / "items" / block['id']).mkdir(parents=True, exist_ok=True)
-        (OUTPUT_DIR / "assets" / NAMESPACE / "textures" / "blocks" / block['id']).mkdir(parents=True, exist_ok=True)
+        if block['seperate_item_model']: (OUTPUT_DIR / "assets" / NAMESPACE / "textures" / "item" / block['id']).mkdir(parents=True, exist_ok=True)
+        (OUTPUT_DIR / "assets" / NAMESPACE / "textures" / "block" / block['id']).mkdir(parents=True, exist_ok=True)
 
         # functions
             # basic functions
@@ -424,12 +451,19 @@ def create_block_item_entry(block):
     }
 
 def create_item_model_entry(block):
-    return {
-        "parent": "minecraft:item/generated",
-        "textures": {
-            "layer0": f"{NAMESPACE}:items/{block['id']}/{block['id']}_item"
+    if block['seperate_item_model']:
+        model = {
+            "parent": "minecraft:item/generated",
+            "textures": {
+                "layer0": f"{NAMESPACE}:items/{block['id']}/{block['id']}_item"
+            }
         }
-    }
+    else:   
+        model = {
+            "parent": f"{NAMESPACE}:item/blocks/{block['id']}/{block['id']}_block"
+            }
+
+    return model
 
 def create_block_model_entry(block):
     return {}
@@ -471,7 +505,7 @@ def create_tick_entry(block):
     return function
 
 def create_place_entry(block):
-    return ["# remove setup item frame", "kill @s", "", "# play place block sound", f"playsound {block['place_block_sound']} block @a ~ ~ ~ 1 2", "", "# spawn the block's item display", f"execute unless block ~ ~ ~ #minecraft:air run return run loot spawn ~ ~ ~ loot {NAMESPACE}:blocks/{block['id']}", f"execute align xyz positioned ~0.5 ~0.5 ~0.5 as @n[tag=smithed.block,distance=..0.1] at @s run return run loot spawn ~ ~ ~ loot {NAMESPACE}:blocks/{block['id']}", "", "setblock ~ ~ ~ minecraft:barrier", "", "# rotate to player orientation", f"data modify storage {NAMESPACE}:temp rotation set value 0", f"execute store result score $player_rotation {NAMESPACE}.dummy run data get entity @p[advancements={{{NAMESPACE}:blocks/item_frame=true}}] Rotation[0]", f"execute if score $player_rotation {NAMESPACE}.dummy matches 135..180 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 90", f"execute if score $player_rotation {NAMESPACE}.dummy matches -180..-135 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 90", f"execute if score $player_rotation {NAMESPACE}.dummy matches -135..-45 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 180", f"execute if score $player_rotation {NAMESPACE}.dummy matches -45..45 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value -90", f"execute if score $player_rotation {NAMESPACE}.dummy matches 45..135 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 0", "", "# run data to macro", f"function {NAMESPACE}:blocks/{block['id']}/macro with storage {NAMESPACE}:temp", f"scoreboard players set @n[type=minecraft:item_display,tag={NAMESPACE}.{block['id']}] {NAMESPACE}.{block['id']}.hit_count 0", f"scoreboard players set @n[type=minecraft:item_display,tag={NAMESPACE}.{block['id']}] {NAMESPACE}.{block['id']}.hit_timer 0"]
+    return ["# remove setup item frame", "kill @s", "", "# play place block sound", f"playsound {block['place_block_sound']}", "", "# spawn the block's item display", f"execute unless block ~ ~ ~ #minecraft:air run return run loot spawn ~ ~ ~ loot {NAMESPACE}:blocks/{block['id']}", f"execute align xyz positioned ~0.5 ~0.5 ~0.5 as @n[tag=smithed.block,distance=..0.1] at @s run return run loot spawn ~ ~ ~ loot {NAMESPACE}:blocks/{block['id']}", "", "setblock ~ ~ ~ minecraft:barrier", "", "# rotate to player orientation", f"data modify storage {NAMESPACE}:temp rotation set value 0", f"execute store result score $player_rotation {NAMESPACE}.dummy run data get entity @p[advancements={{{NAMESPACE}:blocks/item_frame=true}}] Rotation[0]", f"execute if score $player_rotation {NAMESPACE}.dummy matches 135..180 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 90", f"execute if score $player_rotation {NAMESPACE}.dummy matches -180..-135 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 90", f"execute if score $player_rotation {NAMESPACE}.dummy matches -135..-45 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 180", f"execute if score $player_rotation {NAMESPACE}.dummy matches -45..45 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value -90", f"execute if score $player_rotation {NAMESPACE}.dummy matches 45..135 align xyz positioned ~0.5 ~0.5 ~0.5 run data modify storage {NAMESPACE}:temp rotation set value 0", "", "# run data to macro", f"function {NAMESPACE}:blocks/{block['id']}/macro with storage {NAMESPACE}:temp", f"scoreboard players set @n[type=minecraft:item_display,tag={NAMESPACE}.{block['id']}] {NAMESPACE}.{block['id']}.hit_count 0", f"scoreboard players set @n[type=minecraft:item_display,tag={NAMESPACE}.{block['id']}] {NAMESPACE}.{block['id']}.hit_timer 0"]
 
 def create_macro_entry(block):
     if block['interact'] == True:

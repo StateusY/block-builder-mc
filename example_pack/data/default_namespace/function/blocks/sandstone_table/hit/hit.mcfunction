@@ -1,2 +1,0 @@
-advancement revoke @s only default_namespace:blocks/sandstone_table/hit_sandstone_table
-function default_namespace:blocks/sandstone_table/hit/main

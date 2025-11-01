@@ -1,6 +1,6 @@
 {
   "values": [
-    "default_namespace:load",
-    "default_namespace:tick_2"
+    "example_pack:load",
+    "example_pack:tick_2"
   ]
 }

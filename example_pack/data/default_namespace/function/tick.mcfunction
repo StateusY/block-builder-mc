@@ -1,1 +1,0 @@
-function default_namespace:blocks/sandstone_table/tick

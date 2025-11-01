@@ -1,1 +1,0 @@
-execute if entity @s[tag=default_namespace.sandstone_table_setup] run return run function default_namespace:blocks/sandstone_table/place

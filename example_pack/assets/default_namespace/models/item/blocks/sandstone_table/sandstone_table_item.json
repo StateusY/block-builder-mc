@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "default_namespace:item/sandstone_table/sandstone_table_item"
-  }
-}

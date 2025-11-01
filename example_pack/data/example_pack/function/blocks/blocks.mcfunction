@@ -1,0 +1,2 @@
+execute if entity @s[tag=example_pack.sandstone_table] run function example_pack:blocks/sandstone_table/tick
+execute if entity @s[tag=example_pack.hard_cheese] run function example_pack:blocks/hard_cheese/tick

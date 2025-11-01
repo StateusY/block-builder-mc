@@ -1,0 +1,1 @@
+execute if score @s example_pack.sandstone_table.hit_count matches 1.. run function example_pack:blocks/sandstone_table/break/check

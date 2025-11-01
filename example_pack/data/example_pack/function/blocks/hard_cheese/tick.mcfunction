@@ -1,0 +1,1 @@
+execute if score @s example_pack.hard_cheese.hit_count matches 1.. run function example_pack:blocks/hard_cheese/break/check

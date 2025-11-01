@@ -1,1 +1,0 @@
-execute if score @s default_namespace.sandstone_table.hit_count matches 1.. run function default_namespace:blocks/sandstone_table/break/check

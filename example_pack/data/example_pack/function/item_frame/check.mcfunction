@@ -1,0 +1,2 @@
+execute if entity @s[tag=example_pack.sandstone_table_setup] run return run function example_pack:blocks/sandstone_table/place
+execute if entity @s[tag=example_pack.hard_cheese_setup] run return run function example_pack:blocks/hard_cheese/place

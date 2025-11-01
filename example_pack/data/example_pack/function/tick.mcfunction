@@ -1,0 +1,2 @@
+function example_pack:blocks/sandstone_table/tick
+function example_pack:blocks/hard_cheese/tick
