@@ -12,36 +12,31 @@
   "result": {
     "count": 9,
     "id": "minecraft:item_frame",
-    "functions": [
-      {
-        "function": "minecraft:set_components",
-        "components": {
-          "minecraft:item_name": {
-            "translate": "item.example_pack.block.hard_cheese",
-            "fallback": "Block of Hard Cheese"
-          },
-          "minecraft:item_model": "example_pack:blocks/hard_cheese/hard_cheese_item",
-          "minecraft:custom_data": {
-            "example_pack": {
-              "hard_cheese": true
-            },
-            "smithed": {
-              "ignore": {
-                "functionality": true,
-                "crafting": true
-              }
-            }
-          },
-          "minecraft:entity_data": {
-            "id": "minecraft:item_frame",
-            "Tags": [
-              "example_pack.hard_cheese_setup"
-            ],
-            "Silent": true,
-            "Invisible": true
+    "components": {
+      "minecraft:item_name": {
+        "translate": "item.example_pack.block.hard_cheese",
+        "fallback": "Block of Hard Cheese"
+      },
+      "minecraft:item_model": "example_pack:blocks/hard_cheese/hard_cheese_item",
+      "minecraft:custom_data": {
+        "example_pack": {
+          "hard_cheese": true
+        },
+        "smithed": {
+          "ignore": {
+            "functionality": true,
+            "crafting": true
           }
         }
+      },
+      "minecraft:entity_data": {
+        "id": "minecraft:item_frame",
+        "Tags": [
+          "example_pack.hard_cheese_setup"
+        ],
+        "Silent": true,
+        "Invisible": true
       }
-    ]
+    }
   }
 }

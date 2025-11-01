@@ -267,9 +267,7 @@ def create_recipe_entry(block):
             "result": {
                 "count": item_count,
                 "id": item_name,
-                "functions": [
-                    {"function": "minecraft:set_components", "components": components}
-                ]
+                "components": components
             }
         }
 
