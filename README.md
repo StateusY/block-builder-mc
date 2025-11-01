@@ -1,5 +1,5 @@
 # block-builder-mc
-Just a small project to to make a script that generates custom Minecraft blocks using datapacks.
+Just a small script that generates custom Minecraft blocks using datapacks.
 
 
 The block configuration is inspired by [maybejakes](https://github.com/maybejake)'s [Crop and Kettle](https://github.com/maybejake/crop-and-kettle) block implementation.
