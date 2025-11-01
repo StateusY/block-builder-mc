@@ -33,6 +33,31 @@
                   ],
                   "Silent": true,
                   "Invisible": true
+                },
+                "minecraft:consumable": {
+                  "consume_seconds": 3,
+                  "animation": "eat",
+                  "sound": "minecraft:entity.generic.eat",
+                  "has_consume_particles": true,
+                  "on_consume_effects": [
+                    {
+                      "type": "minecraft:apply_effects",
+                      "effects": [
+                        {
+                          "id": "minecraft:haste",
+                          "duration": 30,
+                          "ambient": false,
+                          "show_particles": false,
+                          "show_icon": false
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "minecraft:food": {
+                  "nutrition": 6,
+                  "saturation": 6,
+                  "can_always_eat": true
                 }
               }
             }

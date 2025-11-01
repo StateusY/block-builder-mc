@@ -38,6 +38,8 @@ blocks = [
         "name": "Sandstone Table",
         "id": "sandstone_table",
         "seperate_item_model": True,
+        "consumable_component": None,
+        "food_component": None,
         "interact": False,
         "interaction_function": None,
         "can_float": True,
@@ -66,6 +68,31 @@ blocks = [
         "name": "Block of Hard Cheese",
         "id": "hard_cheese",
         "seperate_item_model": False,
+        "consumable_component": {
+                                    "consume_seconds": 3,
+                                    "animation": "eat",
+                                    "sound": "minecraft:entity.generic.eat",
+                                    "has_consume_particles": True,
+                                    "on_consume_effects": [
+                                    {
+                                        "type": "minecraft:apply_effects",
+                                        "effects": [
+                                        {
+                                            "id": "minecraft:haste",
+                                            "duration": 30,
+                                            "ambient": False,
+                                            "show_particles": False,
+                                            "show_icon": False
+                                        }
+                                        ]
+                                    }
+                                    ]
+                                },
+        "food_component": {
+                            "nutrition": 6,
+                            "saturation": 6,
+                            "can_always_eat": True
+                        },
         "interact": False,
         "interaction_function": None,
         "can_float": True,
@@ -228,6 +255,8 @@ def create_loot_entry(block):
         "minecraft:custom_data": {f"{NAMESPACE}":{f"{block['id']}":True},"smithed":{"ignore":{"functionality":True,"crafting":True}}},
         "minecraft:entity_data": {"id":"minecraft:item_frame","Tags":[f"{NAMESPACE}.{block['id']}_setup"],"Silent":True,"Invisible":True}
     }
+    if block['consumable_component'] != None: components["minecraft:consumable"] = block['consumable_component']
+    if block['food_component'] != None: components["minecraft:food"] = block['food_component']
 
     return {
         "pools": [{
@@ -258,6 +287,8 @@ def create_recipe_entry(block):
         "minecraft:custom_data": {f"{NAMESPACE}":{f"{block['id']}":True},"smithed":{"ignore":{"functionality":True,"crafting":True}}},
         "minecraft:entity_data": {"id":"minecraft:item_frame","Tags":[f"{NAMESPACE}.{block['id']}_setup"],"Silent":True,"Invisible":True}
     }
+    if block['consumable_component'] != None: components["minecraft:consumable"] = block['consumable_component']
+    if block['food_component'] != None: components["minecraft:food"] = block['food_component']
 
     return {
             "type": "minecraft:crafting_shaped",
