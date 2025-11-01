@@ -4,25 +4,52 @@ from pathlib import Path
 
 # === CONFIG ===
 
+### Steps:
+# 1. Open up the script and find the CONFIG section near the top. (Right here!)
+# 2. Change the default_namespace to your desired namespace.
+# 3. Duplicate the example sandstone_table to get the desired quantity of blocks (one entry ber block).
+# 4. Edit each block entry to your choosing.
+#     - Name: this is the display name
+#     - ID: this is what the block will be refered to in the datapack. Keep it all lowercase and no spaces or funky characters.
+#     - Interact: toggle this to true for the block to be interactable.
+#     - Interaction Function: set this to a function you want to trigger when the block is interacted with.
+#     - Can Float: set this to true if you want your block to not be able to float.
+#     - Hit Count: set this to the number of hits your block can take before it breaks.
+#     - Place Block Sound: set this to a sound you want to play when the block is placed.
+#     - Hit Block Sound: set this to a sound you want to play when the block is hit.
+#     - Hit Block Particle: set this to a particle you want to display when the block is broken.
+#     - Break Block Sound: set this to a sound you want to play when the block is hit.
+#     - Break Block Particle: set this to a particle you want to display when the block is broken.
+#     - Has Recipe: set this to true if you want your block to be craftable.
+#     - Recipe Output Quantity: set this to the number of blocks created by the recipe
+#     - Recipe Key: give each ingredient in your recipe a symbol or letter to act as a key.
+#     - Recipe Pattern: arrange the keys in a pattern to mimic a crafting recipe - spaces are empty slots.
+# 5. Now GENERATE! If you input everything above correctly it should work - use the example (sandstone_table) to work off of.
+# 6. The final step is to insert your textures and block models into the datapack
+#     - Upload the block's textures to NAMESPACE/assets/NAMESPACE/textures/blocks/BLOCKNAME")
+#     - Upload the block's item texture to NAMESPACE/assets/NAMESPACE/textures/items/BLOCKNAME")
+#     - Upload the block's model to NAMESPACE/assets/NAMESPACE/models/item/blocks/BLOCKNAME") - Note: only the block model needs uploading, the item model is pregenerated. Also, don't forget to link the textures in the model to the directories of the textures, use the sandstone_table as example.
 
 
-NAMESPACE = "default_namespace"
+NAMESPACE = "default_namespace" # change me
 
 blocks = [
     {
         "name": "Sandstone Table",
         "id": "sandstone_table",
         "interact": False,
+        "interaction_function": None,
         "can_float": True,
 
         "hit_count": 3,
         
-        "place_block_sound": "minecraft:block.stone.place",
+        "place_block_sound": "minecraft:block.stone.place block @a ~ ~ ~ 1 2",
         "hit_block_sound": "minecraft:block.stone.hit",
-        "hit_block_particle": "minecraft:item{item:{id:\"minecraft:sandstone\"}}",
-        "break_block_sound": "minecraft:block.stone.break",
-        "break_block_particle": "minecraft:item{item:{id:\"minecraft:sandstone\"}}",
+        "hit_block_particle": "minecraft:item{item:{id:\"minecraft:sandstone\"}} ~ ~-0.25 ~ 0.3 0.1 0.3 0.1 5",
+        "break_block_sound": "minecraft:block.stone.break block @a ~ ~ ~ 1 2",
+        "break_block_particle": "minecraft:item{item:{id:\"minecraft:sandstone\"}} ~ ~-0.25 ~ 0.3 0.1 0.3 0.1 20",
 
+        "has_recipe": True,
         "recipe_output_quantity": 1,
         "recipe_key": {"#": "minecraft:iron_chain",
                        "X": "minecraft:sandstone",
@@ -32,13 +59,13 @@ blocks = [
             "XXX",
             "$X%",
             "$ $"
-        ],
+        ]
     }
 ]
 
 
 
-# === TECHNICAL ===
+# === TECHNICAL === 
 
 # Base output folder relative to script location
 LOG_FILE = Path(__file__).parent / "log.txt"
@@ -100,8 +127,9 @@ def main():
         save_generic_json(block['id'], OUTPUT_DIR / "data" / NAMESPACE / "loot_table" / "blocks", loot)
 
         # recipe
-        recipe = create_loot_entry(block)
-        save_generic_json(block['id'], OUTPUT_DIR / "data" / NAMESPACE / "recipe" / "blocks", recipe)
+        if block['has_recipe']:
+            recipe = create_loot_entry(block)
+            save_generic_json(block['id'], OUTPUT_DIR / "data" / NAMESPACE / "recipe" / "blocks", recipe)
 
         # advancements
         adv = create_adv_hit_block(block)
@@ -131,6 +159,10 @@ def main():
         save_generic_mcfunction("place", BLOCK_FUNCTION_DIR / block['id'], function)
         function = create_macro_entry(block)
         save_generic_mcfunction("macro", BLOCK_FUNCTION_DIR / block['id'], function)
+        if block['interact']:
+            function = create_interaction_entry(block)
+            save_generic_mcfunction("block_interaction", BLOCK_FUNCTION_DIR / block['id'], function)
+
             # hit block functions
         function = create_hit_hit_entry(block)
         save_generic_mcfunction("hit", BLOCK_FUNCTION_DIR / block['id'] / "hit", function)
@@ -138,6 +170,7 @@ def main():
         save_generic_mcfunction("main", BLOCK_FUNCTION_DIR / block['id'] / "hit", function)
         function = create_hit_check_entry(block)
         save_generic_mcfunction("check", BLOCK_FUNCTION_DIR / block['id'] / "hit", function)
+
             # block break functions
         function = create_break_check_entry(block)
         save_generic_mcfunction("check", BLOCK_FUNCTION_DIR / block['id'] / "break", function)
@@ -267,7 +300,7 @@ def create_adv_interact_block(block):
                 }
             },
             "rewards": {
-                "function": f"{NAMESPACE}:blocks/{block['id']}/interact/main"
+                "function": f"{NAMESPACE}:blocks/{block['id']}/block_interaction"
             }
         }
 
@@ -448,6 +481,9 @@ def create_macro_entry(block):
 
     return macro
 
+def create_interaction_entry(block):
+    return [f"advancement revoke @s only {NAMESPACE}:blocks/{block['id']}/hit_{block['id']}", f"function {block['interaction_function']}"]
+
 def create_hit_hit_entry(block):
     return [f"advancement revoke @s only {NAMESPACE}:blocks/{block['id']}/hit_{block['id']}", f"function {NAMESPACE}:blocks/{block['id']}/hit/main"]
 
@@ -455,13 +491,13 @@ def create_hit_main_entry(block):
     return [f"scoreboard players set $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy 0", "", f"tag @s add {NAMESPACE}.hit_{block['id']}", f"execute as @e[type=minecraft:interaction,tag={NAMESPACE}.{block['id']}_interaction_base,distance=..20,sort=nearest] run function {NAMESPACE}:blocks/{block['id']}/hit/check", f"tag @s remove {NAMESPACE}.hit_{block['id']}"]
 
 def create_hit_check_entry(block):
-    return [f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 run return fail", "", f"execute on attacker if entity @s[tag={NAMESPACE}.hit_{block['id']}] run scoreboard players set $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy 1", f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 run data remove entity @s attack", f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 on vehicle run scoreboard players add @s {NAMESPACE}.{block['id']}.hit_count 1", f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 on vehicle at @s run playsound {block['hit_block_sound']} block @a ~ ~ ~ 1 2", f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 on vehicle at @s run particle {block['hit_block_particle']} ~ ~-0.25 ~ 0.3 0.1 0.3 0.1 5"]
+    return [f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 run return fail", "", f"execute on attacker if entity @s[tag={NAMESPACE}.hit_{block['id']}] run scoreboard players set $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy 1", f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 run data remove entity @s attack", f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 on vehicle run scoreboard players add @s {NAMESPACE}.{block['id']}.hit_count 1", f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 on vehicle at @s run playsound {block['hit_block_sound']}", f"execute if score $hit_{block['id']}_check {NAMESPACE}.{block['id']}.dummy matches 1 on vehicle at @s run particle {block['hit_block_particle']}"]
 
 def create_break_check_entry(block):
     return [f"execute if score @s {NAMESPACE}.{block['id']}.hit_timer matches 60 run scoreboard players set @s {NAMESPACE}.{block['id']}.hit_count 0", f"execute if score @s {NAMESPACE}.{block['id']}.hit_timer matches 60 run return run scoreboard players set @s {NAMESPACE}.{block['id']}.hit_timer 0", f"execute if score @s {NAMESPACE}.{block['id']}.hit_count matches 1..{block['hit_count'] - 1} run return run scoreboard players add @s {NAMESPACE}.{block['id']}.hit_timer 1", "", f"function {NAMESPACE}:blocks/{block['id']}/break/break"]
 
 def create_break_break_entry(block):
-    return ["execute on passengers run kill @s", f"execute as @e[type=interaction,distance=..0.65,tag={NAMESPACE}.{block['id']}_interaction] run kill @s", "kill @s", "", "setblock ~ ~ ~ minecraft:air replace", f"playsound {block['break_block_sound']} block @a ~ ~ ~ 1 2", f"particle {block['break_block_particle']} ~ ~-0.25 ~ 0.3 0.1 0.3 0.1 20", "", f"loot spawn ~ ~ ~ loot {NAMESPACE}:blocks/{block['id']}"]
+    return ["execute on passengers run kill @s", f"execute as @e[type=interaction,distance=..0.65,tag={NAMESPACE}.{block['id']}_interaction] run kill @s", "kill @s", "", "setblock ~ ~ ~ minecraft:air replace", f"playsound {block['break_block_sound']}", f"particle {block['break_block_particle']}", "", f"loot spawn ~ ~ ~ loot {NAMESPACE}:blocks/{block['id']}"]
 
 # === FILE WRITERS ===
 def save_generic_json(name, folder, file):
