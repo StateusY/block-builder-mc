@@ -453,7 +453,7 @@ def create_item_model_entry(block):
         model = {
             "parent": "minecraft:item/generated",
             "textures": {
-                "layer0": f"{NAMESPACE}:items/{block['id']}/{block['id']}_item"
+                "layer0": f"{NAMESPACE}:item/{block['id']}/{block['id']}_item"
             }
         }
     else:   
